@@ -61,4 +61,8 @@ public class Slides {
         // We choose to use the left motor as the lead motor
         return left.getCurrentPosition();
     }
+
+    public void updateValues(double kp, double kd) {
+        pid.updateValues(kp, kd);
+    }
 }
