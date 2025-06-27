@@ -7,14 +7,16 @@ import java.util.Timer;
 public class PID {
     private double kP;
     private double kD;
+    private double kG;
 
     private int lastError;
 
     private ElapsedTime timer;
 
-    public PID(double kp, double kd) {
+    public PID(double kp, double kd, double kg) {
         kP = kP;
         kD = kD;
+        kG = kg;
 
         lastError = 0;
         timer = new ElapsedTime();
@@ -28,11 +30,15 @@ public class PID {
 
         timer.reset();
 
-        return (error * kP) + (derivative * kD);
+        // feedforward
+        double ff = (target > current) ? kG : -kG;
+
+        return (error * kP) + (derivative * kD) + ff;
     }
 
-    public void updateValues(double kp, double kd) {
+    public void updateValues(double kp, double kd, double kg) {
         kP = kp;
         kD = kd;
+        kG = kg;
     }
 }

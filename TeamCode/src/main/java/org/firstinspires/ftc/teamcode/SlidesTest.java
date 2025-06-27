@@ -15,6 +15,7 @@ public class SlidesTest extends OpMode {
     // PID values
     public static double kP;
     public static double kD;
+    public static double kG;
 
     // FTC Dash
     TelemetryPacket packet;
@@ -23,23 +24,42 @@ public class SlidesTest extends OpMode {
     // Testing Values
     public static int target;
 
+    // Change mode
+    public static boolean isPID;
+
     @Override
     public void init() {
-        slides = new Slides(kP, kD, this);
+        slides = new Slides(kP, kD, kG,this);
+
+        target = 0;
 
         packet = new TelemetryPacket();
         dashboard = FtcDashboard.getInstance();
+
+        isPID = true;
     }
 
     @Override
     public void loop() {
-        // PID
-        slides.updateValues(kP, kD);
-        slides.moveSlides(target);
+        if (isPID) {
+            runPID();
+        } else {
+            runRTP();
+        }
+
+        slides.updateValues(kP, kD, kG);
 
         packet.put("target ", target);
         packet.put("current ", slides.currentPos());
 
         dashboard.sendTelemetryPacket(packet);
+    }
+
+    public void runPID() {
+        packet.put("power ", slides.moveSlidesPID(target));
+    }
+
+    public void runRTP() {
+        slides.moveSlidesRTP(target);
     }
 }
