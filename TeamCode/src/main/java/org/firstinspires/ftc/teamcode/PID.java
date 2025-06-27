@@ -6,39 +6,43 @@ import java.util.Timer;
 
 public class PID {
     private double kP;
-    private double kD;
-    private double kG;
+
+    private double kV, kA;
 
     private int lastError;
 
     private ElapsedTime timer;
 
-    public PID(double kp, double kd, double kg) {
+    public PID(double kp) {
         kP = kP;
-        kD = kD;
-        kG = kg;
+
+        timer = new ElapsedTime();
 
         lastError = 0;
-        timer = new ElapsedTime();
     }
 
     public double PIDControl(int target, int current) {
         int error = target - current;
 
-        double derivative = (error-lastError) / timer.seconds();
         lastError = error;
 
-        timer.reset();
-
         // feedforward
-        double ff = (target > current) ? kG : -kG;
+        // double ff = (target > current) ? kG : -kG;
 
-        return (error * kP) + (derivative * kD) + ff;
+        return (error * kP);
     }
 
-    public void updateValues(double kp, double kd, double kg) {
+    public double PIDControlMP(int target, int current, MotionProfiler profile, ElapsedTime timer) {
+        double t = timer.seconds();
+        MotionProfiler.MotionState profileTarget = profile.getState(t);
+
+        double error = profileTarget.x - current;
+        double output = kP * error + kV * profileTarget.v + kA * profileTarget.a;
+
+        return output;
+    }
+
+    public void updateValues(double kp) {
         kP = kp;
-        kD = kd;
-        kG = kg;
     }
 }

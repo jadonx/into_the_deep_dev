@@ -26,10 +26,11 @@ public class SlidesTest extends OpMode {
 
     // Change mode
     public static boolean isPID;
+    public static boolean isMP;
 
     @Override
     public void init() {
-        slides = new Slides(kP, kD, kG,this);
+        slides = new Slides(kP, this);
 
         target = 0;
 
@@ -41,13 +42,15 @@ public class SlidesTest extends OpMode {
 
     @Override
     public void loop() {
-        if (isPID) {
+        if (isPID && !isMP) {
             runPID();
-        } else {
+        } else if (isMP && !isPID) {
+            runMP();
+        }else {
             runRTP();
         }
 
-        slides.updateValues(kP, kD, kG);
+        slides.updateValues(kP);
 
         packet.put("target ", target);
         packet.put("current ", slides.currentPos());
@@ -57,6 +60,10 @@ public class SlidesTest extends OpMode {
 
     public void runPID() {
         packet.put("power ", slides.moveSlidesPID(target));
+    }
+
+    public void runMP() {
+
     }
 
     public void runRTP() {
